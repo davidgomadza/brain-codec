@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brain Codec - Decoding the Brain</title>
+    <style>
+        :root {
+            --gold: #FFD700;
+            --blue: #4169E1;
+            --purple: #800080;
+            --scarlet: #FF2400;
+            --dark-bg: #0a0a2a;
+            --light-bg: #f0f0f5;
+            --card-bg: #ffffff;
+            --text-dark: #333;
+            --text-light: #fff;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        
+        .dark-mode {
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        h1, h2, h3 {
+            color: var(--purple);
+        }
+        
+        .dark-mode h1, .dark-mode h2, .dark-mode h3 {
+            color: var(--gold);
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+            transition: transform 0.3s ease;
+        }
+        
+        .dark-mode .card {
+            background-color: #1a1a3a;
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.05);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .brain-region {
+            position: relative;
+            height: 300px;
+            background-color: #f8f8f8;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .dark-mode .brain-region {
+            background-color: #2a2a4a;
+        }
+        
+        .region {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .region:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+        
+        .front-right {
+            top: 0;
+            right: 0;
+            width: 50%;
+            height: 50%;
+            background-color: var(--gold);
+        }
+        
+        .front-left {
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 50%;
+            background-color: var(--blue);
+        }
+        
+        .back-right {
+            bottom: 0;
+            right: 0;
+            width: 50%;
+            height: 50%;
+            background-color: var(--purple);
+        }
+        
+        .back-left {
+            bottom: 0;
+            left: 0;
+            width: 50%;
+            height: 50%;
+            background-color: var(--scarlet);
+        }
+        
+        .body-map {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .body-zone {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .gold { background-color: var(--gold); color: black; }
+        .blue { background-color: var(--blue); }
+        .purple { background-color: var(--purple); }
+        .scarlet { background-color: var(--scarlet); }
+        
+        .expression-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .expression-table th, .expression-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .expression-table th {
+            background-color: var(--purple);
+            color: white;
+        }
+        
+        .dark-mode .expression-table th {
+            background-color: var(--gold);
+            color: black;
+        }
+        
+        .dark-mode .expression-table td {
+            border-color: #444;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        input[type="text"] {
+            padding: 10px;
+            width: 70%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .dark-mode input[type="text"] {
+            background-color: #2a2a4a;
+            border-color: #444;
+            color: white;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background-color: var(--purple);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .dark-mode button {
+            background-color: var(--gold);
+            color: black;
+        }
+        
+        button:hover {
+            background-color: var(--blue);
+        }
+        
+        .dark-mode button:hover {
+            background-color: var(--scarlet);
+        }
+        
+        .visualization {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f8f8;
+            border-radius: 10px;
+            min-height: 200px;
+        }
+        
+        .dark-mode .visualization {
+            background-color: #2a2a4a;
+        }
+        
+        .waveform {
+            height: 100px;
+            background: linear-gradient(90deg, 
+                rgba(0,0,0,0.1) 0%, 
+                rgba(0,0,0,0.2) 50%, 
+                rgba(0,0,0,0.1) 100%);
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dark-mode .waveform {
+            background: linear-gradient(90deg, 
+                rgba(255,255,255,0.1) 0%, 
+                rgba(255,255,255,0.2) 50%, 
+                rgba(255,255,255,0.1) 100%);
+        }
+        
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%234169E1" fill-opacity="1" d="M0,288L48,272C96,256,192,224,288,197.3C384,171,480,149,576,165.3C672,181,768,235,864,250.7C960,267,1056,245,1152,224C1248,203,1344,181,1392,170.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+            background-size: cover;
+            animation: wave 4s linear infinite;
+        }
+        
+        @keyframes wave {
+            0% { background-position-x: 0; }
+            100% { background-position-x: 1440px; }
+        }
+        
+        .codec-output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #eef;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        
+        .dark-mode .codec-output {
+            background-color: #2a2a5a;
+        }
+        
+        .toggle-container {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--purple);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .binary-output {
+            font-family: monospace;
+            background-color: #333;
+            color: #0f0;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        
+        .dark-mode .binary-output {
+            background-color: #111;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Brain Codec</h1>
+            <p>The Benchmark of Decoding the Brain - Interactive Implementation</p>
+        </header>
+        
+        <div class="toggle-container">
+            <label class="switch">
+                <input type="checkbox" id="darkModeToggle">
+                <span class="slider"></span>
+            </label>
+            <span>Dark Mode</span>
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <h2>Brain Region Classification</h2>
+                <p>The brain is divided into four major regions where words are stored:</p>
+                <div class="brain-region">
+                    <div class="region front-right">Front Right</div>
+                    <div class="region front-left">Front Left</div>
+                    <div class="region back-right">Back Right</div>
+                    <div class="region back-left">Back Left</div>
+                </div>
+                <p>Click on each region to see what types of words are stored there.</p>
+            </div>
+            
+            <div class="card">
+                <h2>Body Alphabet Mapping</h2>
+                <p>Each letter is mapped to specific locations on the body:</p>
+                <div class="body-map">
+                    <div class="body-zone gold">A: Right Collarbone</div>
+                    <div class="body-zone blue">B: Left Collarbone</div>
+                    <div class="body-zone purple">C: Right Below A</div>
+                    <div class="body-zone scarlet">D: Left Below B</div>
+                </div>
+                <p>The pattern continues down the body with letters alternating sides.</p>
+                <p>Numbers 1-26 are mapped to the back of the body in a similar pattern.</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>The 7 Expressions Rule</h2>
+            <p>According to David's Seven Expressions Golden Rule, every word must have 7 expressions/forms:</p>
+            <table class="expression-table">
+                <thead>
+                    <tr>
+                        <th>Expression Type</th>
+                        <th>Description</th>
+                        <th>Example for "Clap"</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Written Language</td>
+                        <td>English or other language form</td>
+                        <td>"clap"</td>
+                    </tr>
+                    <tr>
+                        <td>Voice Sound Wave</td>
+                        <td>Audio waveform when spoken</td>
+                        <td>Sound pattern of "clap"</td>
+                    </tr>
+                    <tr>
+                        <td>EEG/fMRI Scan Language</td>
+                        <td>Brain activity patterns</td>
+                        <td>Neural activity in right back brain</td>
+                    </tr>
+                    <tr>
+                        <td>Light/Acoustic Wave</td>
+                        <td>Electromagnetic representation</td>
+                        <td>Specific frequency pattern</td>
+                    </tr>
+                    <tr>
+                        <td>Brain Language Sequence</td>
+                        <td>Order of brain region activation</td>
+                        <td>Right back → C → L → A → P</td>
+                    </tr>
+                    <tr>
+                        <td>Body Alphabet Map</td>
+                        <td>Body locations for each letter</td>
+                        <td>Collarbone, 6th left, etc.</td>
+                    </tr>
+                    <tr>
+                        <td>Binary/Body Number Map</td>
+                        <td>Numerical and binary representation</td>
+                        <td>3.12.1.16 → 1100010010000100010110</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="card">
+            <h2>Brain Codec Decoder</h2>
+            <p>Enter a word to see how it would be decoded using the Brain Code system:</p>
+            
+            <div class="input-group">
+                <input type="text" id="wordInput" placeholder="Enter a word (e.g., clap)" value="clap">
+                <button id="decodeBtn">Decode Word</button>
+            </div>
+            
+            <div class="visualization">
+                <h3>Word: <span id="currentWord">clap</span></h3>
+                
+                <h4>Sound Wave Visualization</h4>
+                <div class="waveform">
+                    <div class="wave"></div>
+                </div>
+                
+                <h4>Binary Representation</h4>
+                <div class="binary-output" id="binaryOutput">01100011 01101100 01100001 01110000</div>
+                
+                <h4>Body Mapping Sequence</h4>
+                <div class="codec-output" id="bodyMappingOutput">
+                    Right Back Brain → C (Right below A) → L (6th down left) → A (Right collarbone) → P (8th down left) → Deflate
+                </div>
+                
+                <h4>Numerical Representation</h4>
+                <div class="codec-output" id="numericalOutput">
+                    C=3, L=12, A=1, P=16 → 3.12.1.16
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Brain Language Construction</h2>
+            <p>Each word in brain language follows a specific construction pattern:</p>
+            <div class="codec-output">
+                [Brain Region] + [Letter 1 Position] + [Letter 2 Position] + ... + [Letter N Position] + [Deflate]
+            </div>
+            <p>For example, "clap" stored in the right back side of the brain would be constructed as:</p>
+            <div class="codec-output">
+                RBS + C + L + A + P + DEFLATE
+            </div>
+            
+            <h3>Try constructing a brain language command:</h3>
+            <div class="input-group">
+                <input type="text" id="commandInput" placeholder="Enter a command (e.g., raise hand)">
+                <button id="constructBtn">Construct Command</button>
+            </div>
+            
+            <div class="codec-output" id="commandOutput">
+                Enter a command to see its brain language construction.
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Applications and Future Development</h2>
+            <p>This brain decoding system has numerous applications:</p>
+            <ul>
+                <li>Brain-Computer Interfaces (BCIs) for disabled individuals</li>
+                <li>Advanced communication systems</li>
+                <li>Human-like robotics with natural language processing</li>
+                <li>Medical diagnostics and treatment</li>
+                <li>Enhanced learning and memory systems</li>
+            </ul>
+            
+            <p>The system can be expanded with:</p>
+            <ul>
+                <li>Machine learning algorithms for pattern recognition</li>
+                <li>Real-time EEG/fMRI integration</li>
+                <li>Advanced acoustic wave analysis</li>
+                <li>Comprehensive brain language dictionary</li>
+                <li>Body mapping visualization systems</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        darkModeToggle.addEventListener('change', function() {
+            document.body.classList.toggle('dark-mode');
+        });
+        
+        // Brain region click handlers
+        document.querySelectorAll('.region').forEach(region => {
+            region.addEventListener('click', function() {
+                const regionName = this.textContent;
+                let wordExamples = '';
+                
+                switch(regionName) {
+                    case 'Front Right':
+                        wordExamples = 'Action words, masculine terms, future-oriented concepts';
+                        break;
+                    case 'Front Left':
+                        wordExamples = 'Analytical terms, logical constructs, planning words';
+                        break;
+                    case 'Back Right':
+                        wordExamples = 'Common verbs, everyday objects, neutral terms';
+                        break;
+                    case 'Back Left':
+                        wordExamples = 'Feminine terms, emotional words, spiritual concepts';
+                        break;
+                }
+                
+                alert(`${regionName} Brain Region\nStores: ${wordExamples}`);
+            });
+        });
+        
+        // Word decoder
+        const wordInput = document.getElementById('wordInput');
+        const decodeBtn = document.getElementById('decodeBtn');
+        const currentWord = document.getElementById('currentWord');
+        const binaryOutput = document.getElementById('binaryOutput');
+        const bodyMappingOutput = document.getElementById('bodyMappingOutput');
+        const numericalOutput = document.getElementById('numericalOutput');
+        
+        decodeBtn.addEventListener('click', function() {
+            const word = wordInput.value.toLowerCase().trim();
+            if (word) {
+                decodeWord(word);
+            }
+        });
+        
+        // Initialize with "clap"
+        decodeWord('clap');
+        
+        function decodeWord(word) {
+            currentWord.textContent = word;
+            
+            // Generate binary representation
+            let binary = '';
+            for (let i = 0; i < word.length; i++) {
+                const charCode = word.charCodeAt(i);
+                binary += charCode.toString(2).padStart(8, '0') + ' ';
+            }
+            binaryOutput.textContent = binary.trim();
+            
+            // Generate body mapping (simplified)
+            let bodyMapping = 'Right Back Brain';
+            for (let i = 0; i < word.length; i++) {
+                const letter = word[i].toUpperCase();
+                bodyMapping += ` → ${letter} (`;
+                
+                // Simplified mapping logic
+                if (i % 2 === 0) {
+                    bodyMapping += `Right side, position ${i+1}`;
+                } else {
+                    bodyMapping += `Left side, position ${i+1}`;
+                }
+                
+                bodyMapping += ')';
+            }
+            bodyMapping += ' → Deflate';
+            bodyMappingOutput.textContent = bodyMapping;
+            
+            // Generate numerical representation
+            let numerical = '';
+            for (let i = 0; i < word.length; i++) {
+                const letter = word[i].toUpperCase();
+                const position = letter.charCodeAt(0) - 64; // A=1, B=2, etc.
+                numerical += `${letter}=${position}`;
+                if (i < word.length - 1) numerical += ', ';
+            }
+            numerical += ` → ${word.split('').map(l => l.toUpperCase().charCodeAt(0) - 64).join('.')}`;
+            numericalOutput.textContent = numerical;
+        }
+        
+        // Command constructor
+        const commandInput = document.getElementById('commandInput');
+        const constructBtn = document.getElementById('constructBtn');
+        const commandOutput = document.getElementById('commandOutput');
+        
+        constructBtn.addEventListener('click', function() {
+            const command = commandInput.value.trim();
+            if (command) {
+                constructCommand(command);
+            }
+        });
+        
+        function constructCommand(command) {
+            // Simple command construction logic
+            const words = command.split(' ');
+            let construction = '';
+            
+            words.forEach((word, index) => {
+                construction += `[${word.toUpperCase()}: RBS + `;
+                
+                for (let i = 0; i < word.length; i++) {
+                    construction += `${word[i].toUpperCase()}`;
+                    if (i < word.length - 1) construction += ' + ';
+                }
+                
+                construction += ' + DEFLATE]';
+                if (index < words.length - 1) construction += ' + ';
+            });
+            
+            commandOutput.textContent = construction;
+        }
+    </script>
+</body>
+  </html>
